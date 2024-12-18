@@ -1,0 +1,148 @@
+# Compiled source files
+*.dll
+*.exe
+*.so
+*.dylib
+*.class
+
+# Static analysis cache
+*.cache
+
+# Package files
+*.pdb
+*.mdb
+
+# Compiled binary files
+*.dll
+*.exe
+*.app
+*.ipa
+*.dmg
+*.pkg
+*.deb
+*.so
+*.o
+*.a
+
+# Build directories
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Mono auto generated files
+mono_crash.*
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# macOS files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Visual Studio
+.vscode/
+.vs/
+*.csproj.user
+*.csproj.nuget.g.props
+*.csproj.nuget.g.targets
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# StyleCop
+*.stylecop
+
+# Logs
+*.log
+
+# nuget packages
+*.nupkg
+*.snupkg
+packages/
+
+# npm packages
+node_modules/
+
+# ASP.NET Core secrets
+secrets.json
+
+# Entity Framework
+App_Data/
+
+# Azure DevOps
+.vsts/
+
+# Database files
+*.mdf
+*.ldf
+*.ndf
+
+# Runtime
+*.pid
+*.pid.lock
+
+# IDE preferences
+*.idea/
+*.vs/
+
+# IDE backups and temp files
+*.bak
+*.swp
+*.tmp
+*.temp
+
+# Test results
+TestResults/
+
+# Coverage results
+*.coverage
+*.coveragexml
+.coverage
+coverage.json
+
+# Resharper
+_ReSharper*/
+
+# CodeRush
+*.cr
+
+# CodeSmith
+*.cms
+
+# DocProject
+*.doxproj
+
+# Sandcastle
+*.shfbproj
+
+# Visual Studio profiler
+*.vsp
+*.vspx
+
+# IIS logs
+*.log
+
+# Web server
+iisexpress/
+
+# Visual Studio Code
+.vscode/
