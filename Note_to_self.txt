@@ -2,10 +2,10 @@
 dotnet new apicontroller -n <NAME> -o Controllers
 
 *Build a migration for a database with migration name as "InitialMigration",the database fields and names are based on Entities inside Infrastructure:
-dotnet ef migrations add "InitialMigration" --project Infrastructure --startup-project Api/REST --output-dir Migrations
+dotnet ef migrations add "MigrationName" --project Infrastructure --startup-project RunMigrationsApp --output-dir Migrations
 
 *Update database using build migration:
-dotnet ef database update --project Infrastructure --startup-project Api/REST
+dotnet ef database update --project Infrastructure --startup-project RunMigrationsApp
 
 *Add reference other project:
 dotnet add reference ../<Path>/<NAME>.csproj
