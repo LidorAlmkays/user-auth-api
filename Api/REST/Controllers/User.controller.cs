@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Domain.DTOs;
-using Application.UserAuthService;
+using Application.UserService;
 using Domain.Entities;
 
 namespace MyApp.Namespace
 {
     [Route("[controller]")]
     [ApiController]
-    public class UserController(IUserAuthService userAuthService) : ControllerBase
+    public class UserController(IUserService userAuthService) : ControllerBase
     {
-        private readonly IUserAuthService userAuthService = userAuthService;
+        private readonly IUserService userAuthService = userAuthService;
 
         [HttpGet]
         public ActionResult<User> GetUserByEmail([FromQuery] UserIdentifyingInformationDTO userInformation)
@@ -21,8 +21,12 @@ namespace MyApp.Namespace
 
             try
             {
-                var a = userAuthService.GetUserByEmail(userInformation.Email);
-                return Ok(a);
+                var user = userAuthService.GetUserByEmail(userInformation.Email);
+                if (user == null)
+                {
+                    return NotFound($"User with the email: ${userInformation.Email}, was not found.");
+                }
+                return Ok(user);
 
             }
             catch (ArgumentException ex)
@@ -37,13 +41,23 @@ namespace MyApp.Namespace
             }
         }
 
-
-
         [HttpPost]
-        public IActionResult RegisterUser([FromBody] UserRegisterDTO userRegisterDTO)
+        public async Task<IActionResult> RegisterUser([FromBody] UserRegisterDTO userRegisterDTO)
         {
+            try
+            {
+                await userAuthService.RegisterUser(userRegisterDTO);
+                return Ok();
 
-            return Ok();
+            }
+            catch (InvalidOperationException)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "A user with the email already exists.");
+            }
+            catch (Exception err)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while registering the user.\nError: " + err.Message);
+            }
         }
     }
 }

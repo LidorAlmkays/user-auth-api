@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{7A4FC481-6D8D-4E07-9020-0C3914A054F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{FAF57DF8-4C18-4365-BF00-5D1DA4AF2D48}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserAuthApiTest", "UserAuthApiTest\UserAuthApiTest.csproj", "{FAF57DF8-4C18-4365-BF00-5D1DA4AF2D48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

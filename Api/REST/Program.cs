@@ -1,33 +1,47 @@
 using Infrastructure.UserRepository;
 using Microsoft.EntityFrameworkCore;
-using Application.UserAuthService;
+using Application.UserService;
 using REST.middlewares;
+using Application.EncryptingService;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
-builder.Services.AddScoped<IUserAuthService, UserAuthService>();
+// Retrieve the connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                     ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION");
+
+
+
+// Configure services
+builder.Services.AddDbContext<UserRepositoryContext>(options =>
+    options.UseNpgsql(connectionString));  // Use Npgsql for PostgreSQL
+
+
+builder.Services.Configure<SaltAndPepperSettings>(builder.Configuration.GetSection("SaltAndPepperSettings"));
+
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEncryptingService, SaltAndPepperService>();
+builder.Services.AddScoped<IUserRepositoryService, UserRepositoryService>();
+
 
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
 });
 
-builder.Services.AddDbContext<UserRepositoryContext>(options => options.UseNpgsql(builder.Configuration["UserDbConnectionStrings"]));
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "My API",
+        Title = "User auth api",
         Version = "v1",
         Description = "This is a sample API using Swagger",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
-            Name = "Your Name",
+            Name = "Lidor",
             Email = "your-email@example.com",
         }
     });
@@ -39,7 +53,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseSwagger();                        // Enable Swagger middleware
     app.UseSwaggerUI();                     // Enable Swagger UI
 }
