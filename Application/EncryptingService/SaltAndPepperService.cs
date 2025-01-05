@@ -28,12 +28,6 @@ namespace Application.EncryptingService
             return hashedPassword;
         }
 
-        public async Task<string> GenerateToken(GenerateTokenInfoDTO user)
-        {
-
-            return "";
-        }
-
         public async Task<bool> CheckPasswordAsync(string hashedPassword, string password, string salt)
         {
             int totalCombinations = CalculateTotalCombinations();
