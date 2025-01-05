@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Application.UserService;
 using REST.middlewares;
 using Application.EncryptingService;
+using Application.TokenService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,16 +14,16 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                      ?? Environment.GetEnvironmentVariable("DATABASE_CONNECTION");
 
-
+builder.Services.Configure<SaltAndPepperSettings>(builder.Configuration.GetSection("SaltAndPepperSettings"));
+builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWTSettings"));
 
 // Configure services
 builder.Services.AddDbContext<UserRepositoryContext>(options =>
     options.UseNpgsql(connectionString));  // Use Npgsql for PostgreSQL
 
 
-builder.Services.Configure<SaltAndPepperSettings>(builder.Configuration.GetSection("SaltAndPepperSettings"));
-
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITokenService, JwtService>();
 builder.Services.AddScoped<IEncryptingService, SaltAndPepperService>();
 builder.Services.AddScoped<IUserRepositoryService, UserRepositoryService>();
 

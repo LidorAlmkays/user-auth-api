@@ -7,10 +7,11 @@ namespace MyApp.Namespace
 {
     [Route("[controller]")]
     [ApiController]
-    public class UserController(IUserService userAuthService) : ControllerBase
+    public class UserController(IUserService userService) : ControllerBase
     {
-        private readonly IUserService userAuthService = userAuthService;
+        private readonly IUserService userService = userService;
 
+        //TODO(lidor):Add checks on this route! that a user has an admin role!!!
         [HttpGet]
         public ActionResult<User> GetUserByEmail([FromQuery] UserIdentifyingInformationDTO userInformation)
         {
@@ -21,7 +22,7 @@ namespace MyApp.Namespace
 
             try
             {
-                var user = userAuthService.GetUserByEmail(userInformation.Email);
+                var user = userService.GetUserByEmail(userInformation.Email);
                 if (user == null)
                 {
                     return NotFound($"User with the email: ${userInformation.Email}, was not found.");
@@ -41,12 +42,12 @@ namespace MyApp.Namespace
             }
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegisterDTO userRegisterDTO)
         {
             try
             {
-                await userAuthService.RegisterUser(userRegisterDTO);
+                await userService.RegisterUser(userRegisterDTO);
                 return Ok();
 
             }
@@ -57,6 +58,24 @@ namespace MyApp.Namespace
             catch (Exception err)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while registering the user.\nError: " + err.Message);
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<TokensGeneratedDTO>> Login(UserLoginDTO userInformation)
+        {
+
+            try
+            {
+                TokensGeneratedDTO tokens = await userService.Login(userInformation);
+                if (tokens != null)
+                    return Ok(tokens);
+                else
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create user tokens.");
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, e.Message);
             }
         }
     }

@@ -1,20 +1,23 @@
-using Application.EncryptingService;
+using Application.TokenService;
 using Domain.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace REST.Controllers
 {
     [Route("[controller]")]
-    public class AuthenticationController(IEncryptingService authService) : Controller
+    [ApiController]
+    public class AuthenticationController(ITokenService tokenService) : ControllerBase
     {
-        private readonly IEncryptingService authService = authService ?? throw new ArgumentNullException(nameof(authService));
+        private readonly ITokenService tokenService = tokenService;
 
-        [HttpPost]
-        public ActionResult<string> AuthenticateUser([FromBody] GenerateTokenInfoDTO generateTokenInfoDTO)
+        [HttpPost("validate")]
+        public ActionResult IsUserTokenValid(string token)
         {
 
-            return Ok(authService.GenerateToken(generateTokenInfoDTO));
+            if (tokenService.ValidateToken(token))
+                return Ok();
+            else
+                return BadRequest("Missing access or refresh token");
         }
-
     }
 }
