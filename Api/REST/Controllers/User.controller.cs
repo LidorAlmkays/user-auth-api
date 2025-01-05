@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.DTOs;
 using Application.UserService;
 using Domain.Entities;
+using REST.guards;
+using Domain.Enums;
 
 namespace MyApp.Namespace
 {
@@ -11,9 +13,9 @@ namespace MyApp.Namespace
     {
         private readonly IUserService userService = userService;
 
-        //TODO(lidor):Add checks on this route! that a user has an admin role!!!
         [HttpGet]
-        public ActionResult<User> GetUserByEmail([FromQuery] UserIdentifyingInformationDTO userInformation)
+        [TypeFilter(typeof(TokenValidationGuard), Arguments = [Role.User])]
+        public async Task<ActionResult<User>> GetUserByEmail([FromQuery] UserIdentifyingInformationDTO userInformation)
         {
             if (string.IsNullOrEmpty(userInformation.Email))
             {
@@ -22,23 +24,14 @@ namespace MyApp.Namespace
 
             try
             {
-                var user = userService.GetUserByEmail(userInformation.Email);
-                if (user == null)
-                {
-                    return NotFound($"User with the email: ${userInformation.Email}, was not found.");
-                }
+                var user = await userService.GetUserByEmail(userInformation.Email);
                 return Ok(user);
 
             }
-            catch (ArgumentException ex)
-            {
-                // Return a 404 Not Found with the exception message
-                return NotFound(ex.Message);
-            }
             catch (Exception)
             {
-                // Return a 500 Internal Server Error for unexpected exceptions
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                // Return a 404 Not Found with the exception message
+                return NotFound($"User with the email: ${userInformation.Email}, was not found.");
             }
         }
 
@@ -64,7 +57,6 @@ namespace MyApp.Namespace
         [HttpPost("login")]
         public async Task<ActionResult<TokensGeneratedDTO>> Login(UserLoginDTO userInformation)
         {
-
             try
             {
                 TokensGeneratedDTO tokens = await userService.Login(userInformation);

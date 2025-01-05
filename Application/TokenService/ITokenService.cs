@@ -7,6 +7,7 @@ namespace Application.TokenService
     {
         public string RefreshAccessToken(string accessToken, string refreshToken);
         public bool ValidateToken(string token);
+        public Role? GetRoleFromToken(string token);
         public Task<TokensGeneratedDTO> GenerateTokens(string email, Role role);
 
     }

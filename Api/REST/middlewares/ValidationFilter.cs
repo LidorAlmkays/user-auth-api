@@ -8,6 +8,11 @@ namespace REST.middlewares
         {
             if (!context.ModelState.IsValid)
             {
+                Console.WriteLine("Model state is invalid:");
+                foreach (var key in context.ModelState.Keys)
+                {
+                    Console.WriteLine($"{key}: {context.ModelState[key].Errors.Count} errors");
+                }
                 context.Result = new BadRequestObjectResult(context.ModelState);
             }
         }

@@ -18,7 +18,7 @@ namespace Application.TokenService
         {
             return new()
             {
-                AccessToken =
+                Authorization =
                 GenerateToken(email, role, AccessTokenLifetime),
                 RefreshToken = GenerateToken(email, role, RefreshTokenLifetime)
             };
@@ -45,22 +45,31 @@ namespace Application.TokenService
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(SecretKey);
+                var key = EncodeSecretKey();
 
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
+
+                var validationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                }, out _);
+                    IssuerSigningKey = key, // Use the key that was used for signing
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero, // No clock skew allowed
+                    ValidateIssuer = false,    // Skip issuer validation
+                    ValidateAudience = false,  // Skip audience validation
+                };
 
-                return true;
+                tokenHandler.ValidateToken(token, validationParameters, out _);
+                return true; // Token is valid
             }
-            catch
+            catch (SecurityTokenException ex)
             {
-                return false;
+                Console.WriteLine($"Token validation failed: {ex.Message}");
+                return false; // Token is invalid
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+                return false; // General error
             }
         }
 
@@ -71,7 +80,8 @@ namespace Application.TokenService
             var claims = new[]
             {
             new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Role,RoleExtensions.ToFriendlyString( role))
+            new Claim(ClaimTypes.Role,RoleExtensions.ToFriendlyString( role)),
+            new Claim("kid","V1")
         };
 
             var token = new JwtSecurityToken(
@@ -90,7 +100,7 @@ namespace Application.TokenService
             return jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
         }
 
-        private Role? GetRoleFromToken(string token)
+        public Role? GetRoleFromToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtToken = tokenHandler.ReadJwtToken(token);
@@ -103,32 +113,18 @@ namespace Application.TokenService
             // Convert the secret key to bytes
             byte[] keyBytes = Encoding.UTF8.GetBytes(SecretKey);
 
-            // Ensure the key is at least 256 bits (32 bytes)
+            // Ensure the key is 256 bits (32 bytes). If it's shorter, hash it to fit the requirement.
             if (keyBytes.Length < 32)
             {
-                int paddingLength = 32 - keyBytes.Length;
-                byte[] padding = new byte[paddingLength];
-
-                // Fill padding with a fixed value (e.g., 0)
-                for (int i = 0; i < padding.Length; i++)
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
                 {
-                    padding[i] = 0; // You can change this value if needed
+                    keyBytes = sha256.ComputeHash(keyBytes); // Hash to get exactly 32 bytes
                 }
-
-                // Combine the original key with the padding
-                byte[] newKeyBytes = new byte[32];
-                Buffer.BlockCopy(keyBytes, 0, newKeyBytes, 0, keyBytes.Length); // Copy original key
-                Buffer.BlockCopy(padding, 0, newKeyBytes, keyBytes.Length, padding.Length); // Add padding
-
-                keyBytes = newKeyBytes;
             }
-
-            // If the key is too long, truncate it to 256 bits (32 bytes)
-            if (keyBytes.Length > 32)
+            else if (keyBytes.Length > 32)
             {
-                byte[] truncatedKey = new byte[32];
-                Buffer.BlockCopy(keyBytes, 0, truncatedKey, 0, 32);
-                keyBytes = truncatedKey;
+                // If the key is too long, use the first 32 bytes.
+                keyBytes = keyBytes.Take(32).ToArray();
             }
 
             return new SymmetricSecurityKey(keyBytes);

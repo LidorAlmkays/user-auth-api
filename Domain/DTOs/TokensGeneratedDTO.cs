@@ -7,7 +7,7 @@ namespace Domain.DTOs
 {
     public class TokensGeneratedDTO
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        public string Authorization { get; set; } //AccessToken
+        public string RefreshToken { get; set; } //RefreshToken
     }
 }
