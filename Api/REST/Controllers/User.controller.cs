@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.DTOs;
 using Application.UserService;
 using Domain.Entities;
-using REST.guards;
+using REST.Guards;
 using Domain.Enums;
 
 namespace MyApp.Namespace

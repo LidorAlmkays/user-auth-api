@@ -3,7 +3,7 @@ using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace REST.guards
+namespace REST.Guards
 {
     public class TokenValidationGuard : Attribute, IAsyncActionFilter
     {

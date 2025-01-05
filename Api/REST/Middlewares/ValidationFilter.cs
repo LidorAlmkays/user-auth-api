@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-namespace REST.middlewares
+namespace REST.Middlewares
 {
     public class ValidationFilter : IActionFilter
     {
